@@ -1,6 +1,8 @@
 "use client"
 
+import { api } from "@/convex/_generated/api";
 import { cn } from "@/lib/utils";
+import { useQuery } from "convex/react";
 import { ChevronsLeft, MenuIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { ElementRef, useEffect, useRef, useState } from "react";
@@ -9,6 +11,7 @@ import { useMediaQuery } from "usehooks-ts";
 export const Naviagtion = () => {
     const pathname = usePathname();
     const isMobile = useMediaQuery("(max-width: 768px)");
+    const documents = useQuery(api.documents.get);
 
     const isResizeingRef = useRef(false);
     const sidebarRef = useRef<ElementRef<"aside">>(null);
@@ -115,7 +118,11 @@ export const Naviagtion = () => {
                     <p>Actions items</p>
                 </div>
                 <div className="mt-4">
-                    <p>Documents</p>
+                    {documents?.map((document) => (
+                        <p key={document._id}>
+                            {document.title}
+                        </p>
+                    ))}
                 </div>
                 {/* 사이드바 호버시 세로 라인 생성 */}
                 {/* 이 부분을 마우스누른 후 이동시키면, width 커지고, 작아지기
