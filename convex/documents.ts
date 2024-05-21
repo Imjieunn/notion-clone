@@ -17,6 +17,57 @@ import {Doc, Id} from "./_generated/dataModel";
 //     }
 // });
 
+export const archive = mutation({
+    args: { id: v.id("documents") },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+
+        if (!identity) {
+            throw new Error("Not authenticated");
+        }
+
+        const userId = identity.subject;
+
+        // 해당 유저의 db에 존재하는 document가 있는지 확인
+        const existingDocument = await ctx.db.get(args.id);
+
+        if (!existingDocument) {
+            throw new Error("Not found");
+        }
+
+        if (existingDocument.userId !== userId) {
+            throw new Error("Unauthorized");
+        }
+
+        // documentId를 부모로 갖는 모든 자식 문서들을 데이터베이스에서 찾아 children 변수에 저장합니다.
+        // 근데 이게 depth가 여러개니까 이 작업을 계속 반복해야 함
+        const recursiveArchive = async (documentId: Id<"documents">) => {
+            const children = await ctx.db.query('documents')
+            .withIndex("by_user_parent", (q) => (
+                q
+                   .eq("userId", userId)
+                   .eq("parentDocument", documentId)
+            ))
+            .collect();
+
+            for (const child of children) {
+                await ctx.db.patch(child._id, {
+                    isArchived: true,
+                });
+                await recursiveArchive(child._id);
+            }
+        }
+
+        const document = await ctx.db.patch(args.id, {
+            isArchived: true,
+        });
+
+        recursiveArchive(args.id);
+
+        return document;
+    }
+})
+
 export const getSidebar = query({
     args: {
         parentDocument: v.optional(v.id("documents"))
