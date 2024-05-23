@@ -3,7 +3,7 @@
 import { api } from "@/convex/_generated/api";
 import { cn } from "@/lib/utils";
 import { useMutation } from "convex/react";
-import { ChevronsLeft, MenuIcon, PlusCircle, Search, Settings } from "lucide-react";
+import { ChevronsLeft, MenuIcon, Plus, PlusCircle, Search, Settings, Trash } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { ElementRef, useEffect, useRef, useState } from "react";
 import { useMediaQuery } from "usehooks-ts";
@@ -11,6 +11,8 @@ import { UserItem } from "./user-item";
 import { Item } from "./item";
 import { toast } from "sonner";
 import { DocumentList } from "./document-list";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { TrashBox } from "./trash-box";
 
 export const Naviagtion = () => {
     const pathname = usePathname();
@@ -148,6 +150,19 @@ export const Naviagtion = () => {
                 </div>
                 <div className="mt-4">
                     <DocumentList />
+                    <Item
+                    onClick={handleCreate}
+                    label="Add a page"
+                    icon={Plus}
+                    />
+                    <Popover>
+                        <PopoverTrigger className="w-full mt-4">
+                            <Item label="Trash" icon={Trash} />
+                        </PopoverTrigger>
+                        <PopoverContent side={isMobile ? "bottom" : "right"} className="p-0 w-72" >
+                            <TrashBox />
+                        </PopoverContent>
+                    </Popover>
                 </div>
                 {/* 사이드바 호버시 세로 라인 생성 */}
                 {/* 이 부분을 마우스누른 후 이동시키면, width 커지고, 작아지기

@@ -28,7 +28,7 @@ interface ItemProps {
     level?: number;
     onExpand?: () => void;
     label: string;
-    onClick: () => void;
+    onClick?: () => void;
     icon: LucideIcon;
 }
 
@@ -129,7 +129,7 @@ export const Item = ({
 
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
-                            className="w-60 z-[100000]"
+                            className="w-60"
                             align="start"
                             side="right"
                             forceMount
